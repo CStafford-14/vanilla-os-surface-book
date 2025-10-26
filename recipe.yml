@@ -1,6 +1,6 @@
 base: ghcr.io/vanilla-os/desktop:main
 name: Custom Vanilla OS desktop for Surface Book devices
-id: vanilla-os-surface-pro
+id: vanilla-os-surface-book
 labels:
   maintainer: CStafford-14
 args:
