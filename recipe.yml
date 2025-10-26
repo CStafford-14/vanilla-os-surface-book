@@ -18,8 +18,11 @@ modules:
 - name: add-kernel-repo
   type: shell
   commands:
+  - dpkg --add-architecture i386
   - wget -qO - https://raw.githubusercontent.com/linux-surface/linux-surface/master/pkg/keys/surface.asc | gpg --dearmor | dd of=/etc/apt/trusted.gpg.d/linux-surface.gpg
   - echo "deb [arch=amd64] https://pkg.surfacelinux.com/debian release main" | tee /etc/apt/sources.list.d/linux-surface.list
+  - mkdir -pm755 /etc/apt/keyrings
+  - wget -O - https://dl.winehq.org/wine-builds/winehq.key | sudo gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key -
   - apt-get update
 
 - name: add-kernel-packages
@@ -36,6 +39,7 @@ modules:
   source:
     packages:
     - gnome-tweaks
+    - winehq-stable
     - vim
 
 # Put your custom actions before this comment
