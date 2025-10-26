@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  CUSTOM_IMAGE_NAME: vanilla-os-surface-pro
+  CUSTOM_IMAGE_NAME: vanilla-os-surface-book
 
 jobs:
   check_update:
