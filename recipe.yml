@@ -18,22 +18,15 @@ stages:
 
 # Put your custom actions behind this comment
 
-- id: add-kernel-repo
+- id: add-kernel
   base: build
   modules:
   - name: add-kernel-repo
     type: shell
     commands:
-    #- dpkg --add-architecture i386
     - wget -qO - https://raw.githubusercontent.com/linux-surface/linux-surface/master/pkg/keys/surface.asc | gpg --dearmor | dd of=/etc/apt/trusted.gpg.d/linux-surface.gpg
     - echo "deb [arch=amd64] https://pkg.surfacelinux.com/debian release main" | tee /etc/apt/sources.list.d/linux-surface.list
-    #- mkdir -pm755 /etc/apt/keyrings
-    #- wget -O - https://dl.winehq.org/wine-builds/winehq.key | sudo gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key -
-    #- apt-get update
-
-- id: add-kernel-packages
-  base: add-kernel-repo
-  modules:
+    - apt-get update
   - name: add-kernel-packages
     type: apt
     source:
@@ -44,7 +37,7 @@ stages:
       - iptsd
 
 - id: add-qol-packages
-  base: add-kernel-packages
+  base: add-kernel
   modules:
   - name: add-qol-packages
     type: apt
@@ -73,6 +66,9 @@ stages:
     - apt-get autoremove -y
     - apt-get clean
     - lpkg --lock
+    - rm -rf /tmp/*
+    - rm -rf /var/tmp/*
+    - rm -rf /sources
 
 - id: fsguard
   base: cleanup
@@ -90,13 +86,3 @@ stages:
           - rm -rf /FsGuard 
           - rm -f ./minisign.pub ./minisign.key 
           - chmod +x /usr/sbin/init
-
-- id: cleanup2
-  base: fsguard
-  modules:
-  - name: cleanup2
-    type: shell
-    commands:
-      - rm -rf /tmp/*
-      - rm -rf /var/tmp/*
-      - rm -rf /sources
