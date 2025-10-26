@@ -1,78 +1,102 @@
 base: ghcr.io/vanilla-os/desktop:main
 name: Custom Vanilla OS desktop for Surface Book devices
 id: vanilla-os-surface-book
+vibversion: 1.0.0
 labels:
   maintainer: CStafford-14
 args:
   DEBIAN_FRONTEND: noninteractive
-
-modules:
-- name: init-setup
-  type: shell
-  commands:
-  - lpkg --unlock
-  - apt-get update
+stages:
+- id: build
+  base: ghcr.io/vanilla-os/desktop:main
+  modules:
+  - name: init-setup
+    type: shell
+    commands:
+    - lpkg --unlock
+    - apt-get update
 
 # Put your custom actions behind this comment
 
-- name: add-kernel-repo
-  type: shell
-  commands:
-  #- dpkg --add-architecture i386
-  - wget -qO - https://raw.githubusercontent.com/linux-surface/linux-surface/master/pkg/keys/surface.asc | gpg --dearmor | dd of=/etc/apt/trusted.gpg.d/linux-surface.gpg
-  - echo "deb [arch=amd64] https://pkg.surfacelinux.com/debian release main" | tee /etc/apt/sources.list.d/linux-surface.list
-  #- mkdir -pm755 /etc/apt/keyrings
-  #- wget -O - https://dl.winehq.org/wine-builds/winehq.key | sudo gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key -
-  #- apt-get update
+- id: add-kernel-repo
+  base: build
+  modules:
+  - name: add-kernel-repo
+    type: shell
+    commands:
+    #- dpkg --add-architecture i386
+    - wget -qO - https://raw.githubusercontent.com/linux-surface/linux-surface/master/pkg/keys/surface.asc | gpg --dearmor | dd of=/etc/apt/trusted.gpg.d/linux-surface.gpg
+    - echo "deb [arch=amd64] https://pkg.surfacelinux.com/debian release main" | tee /etc/apt/sources.list.d/linux-surface.list
+    #- mkdir -pm755 /etc/apt/keyrings
+    #- wget -O - https://dl.winehq.org/wine-builds/winehq.key | sudo gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key -
+    #- apt-get update
 
-- name: add-kernel-packages
-  type: apt
-  source:
-    packages:
-    - linux-image-surface
-    - linux-headers-surface
-    - libwacom-surface
-    - iptsd
+- id: add-kernel-packages
+  base: add-kernel-repo
+  modules:
+  - name: add-kernel-packages
+    type: apt
+    source:
+      packages:
+      - linux-image-surface
+      - linux-headers-surface
+      - libwacom-surface
+      - iptsd
 
-- name: add-qol-packages
-  type: apt
-  source:
-    packages:
-    - gnome-tweaks
-    #- winehq-stable
-    - vim
+- id: add-qol-packages
+  base: add-kernel-packages
+  modules:
+  - name: add-qol-packages
+    type: apt
+    source:
+      packages:
+      - gnome-tweaks
+      #- winehq-stable
+      - vim
 
 # Put your custom actions before this comment
 
-- name: set-image-name-abroot
-  type: includes
-  includes:
-    - modules/80-set-image-abroot-config
-
-- name: cleanup
-  type: shell
-  commands:
-  - apt-get autoremove -y
-  - apt-get clean
-  - lpkg --lock
-
-- name: fsguard
-  type: fsguard
-  CustomFsGuard: false
-  FsGuardLocation: "/usr/sbin/FsGuard"
-  GenerateKey: true
-  FilelistPaths: ["/usr/bin"]
+- id: set-image-name-abroot
+  base: add-qol-packages
   modules:
-    - name: remove-prev-fsguard
-      type: shell
-      commands:
-        - rm -rf /FsGuard 
-        - rm -f ./minisign.pub ./minisign.key 
-        - chmod +x /usr/sbin/init
+  - name: set-image-name-abroot
+    type: includes
+    includes:
+      - modules/80-set-image-abroot-config
 
-- name: cleanup2
-  type: shell
-  commands:
-    - rm -rf /tmp/*
-    - rm -rf /var/tmp/*
-    - rm -rf /sources
+- id: cleanup
+  base: set-image-name-abroot
+  modules:
+  - name: cleanup
+    type: shell
+    commands:
+    - apt-get autoremove -y
+    - apt-get clean
+    - lpkg --lock
+
+- id: fsguard
+  base: cleanup
+  modules:
+  - name: fsguard
+    type: fsguard
+    CustomFsGuard: false
+    FsGuardLocation: "/usr/sbin/FsGuard"
+    GenerateKey: true
+    FilelistPaths: ["/usr/bin"]
+    modules:
+      - name: remove-prev-fsguard
+        type: shell
+        commands:
+          - rm -rf /FsGuard 
+          - rm -f ./minisign.pub ./minisign.key 
+          - chmod +x /usr/sbin/init
+
+- id: cleanup2
+  base: fsguard
+  modules:
+  - name: cleanup2
+    type: shell
+    commands:
+      - rm -rf /tmp/*
+      - rm -rf /var/tmp/*
+      - rm -rf /sources
