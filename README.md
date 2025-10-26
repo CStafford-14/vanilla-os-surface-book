@@ -1,12 +1,26 @@
-# Custom Vib Image
+# VanillaOS for Surface Book 2
 
-This template repository is a starting point for creating custom [Vib images](https://github.com/Vanilla-OS/Vib) on top of [official vanilla images](https://images.vanillaos.org) like [desktop image](https://github.com/Vanilla-OS/desktop-image). It contains a basic recipe and an example module to get you started.
+This repository contains a Vib recipe for creating a custom VanillaOS install medium suitable for the Surface Book 2.
+This is my first time really using Vib, so this repository will likely change as I figure out what I should and should not do to build a system image.
+I will be daily driving this image on my own Surface device, so I'll know if something screws up!
 
-It is suggested to check the [Vib repository's README](https://github.com/Vanilla-OS/Vib?tab=readme-ov-file#recipe-format) to know more about the recipe format, structure of modules and the supported fields.
+## Changes and additions
 
-## Getting Started
+- Adds the Surface Linux kernel repository (More information [here](https://github.com/linux-surface/linux-surface).) and the kernel and headers
+- `iptsd`
+- Secure boot via `linux-surface-secureboot-mok`
+- Clipboard detachment via `surface-dtx-daemon`
+- GNOME Tweaks
+- Wine
 
-- First, click on the "Use this template" button in the top right corner, then from the drop-down menu select "Create a new repository". This would create a new repository with the same files and directories as this repository.
+### Planned additions
+
+- [Howdy](https://github.com/boltgolt/howdy)
+- Custom plymouth theme for Surface, probably BGRT or something of the like
+
+## Customize this image
+
+- First, click on the "Fork" button in the top right corner, then follow the options to create a repository based on this one. This would create a new repository with the same files and directories as this repository.
 - Go to Settings → Actions → General and ensure "Allow all actions and reusable workflows" are enabled.
 - Now, clone the repository to your local machine and let's start customizing your image. You can also use the GitHub online editor if you prefer.
 - Open the `vib-build.yml` workflow file and replace the custom image name with an image name of your choosing in line 11.
@@ -27,16 +41,8 @@ If your image is successfully built, you can then point ABRoot to your custom im
 - Change the "name" entry from something like `vanilla-os/desktop` to `your-github-name/your-image-name` (for example `taukakao/custom`).
 - Run `abroot upgrade` to switch to your custom image.
 
-## Explore
+Instructions for direct ISO coming soon™
 
-Now, that you are aware of the basics, let's explore the files and directories present in this repository:
-
-- `.github/workflows/vib-build.yml`: This file contains the GitHub Actions workflow to check for updates to the base image and build the Vib image.
-  - It uses the `vib` action to build the recipe and upload it as an artifact. The generated artifact is then built using Docker and pushed to GHCR.
-  - The action runs automatically on a schedule checking updates to the base image using [Differ](https://github.com/Vanilla-OS/Differ).
-- `.github/workflows/vib-pr.yml`: This file contains the GitHub Actions workflow to build the Vib image on pull requests.
-  - It uses the `vib` action to build the recipe and upload it as an artifact. You can download and view the artifact to verify that your changes are performed as expected.
-- `.github/dependabot.yml`: This file contains the configuration for GitHub's Dependabot to check for updates to the GitHub actions used in the workflow files monthly and when it finds a new version it creates a PR in your repository.
-- `includes.container`: The files included in this directory are added by default to your image to the specified location. (It also contains ABRoot's configuration file)
-- `modules`: This directory contains the modules that are used to customize the image. You can add your modules to this directory.
-- `recipe.yml`: This file contains the recipe for the image. It specifies the base image, modules and other fields to be present in the custom image.
+To learn more about Vib and how to use it, check out the following resources:
+- [Vib Repository](https://github.com/Vanilla-OS/Vib)
+- [Custom Vib Image Template](https://github.com/Vanilla-OS/custom-image)
